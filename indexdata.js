@@ -8,29 +8,29 @@ const { contractABI_UNISWAP_FACTORY_V2, contractABI_MEMECOIN, contractABI_NFT_CO
 const port = 3000; // Puedes usar otro puerto si lo prefieres
 
 app.use(cors({
-  origin: ['http://localhost:5173'] // Restringe los orígenes permitidos
-  //origin: ['https://ggeese.github.io'] // Restringe los orígenes permitidos
+  //origin: ['http://localhost:5173'] // Restringe los orígenes permitidos
+  origin: ['https://ggeese.github.io'] // Restringe los orígenes permitidos
 }));
 
 // Middleware para parsear JSON
 app.use(express.json());
 
 
-/*const db = new Client({
+const db = new Client({
   user: process.env.USER_DB_POSTGRES,
   host: process.env.HOST_DB_POSTGRES,
   database: process.env.DATABASE_DB_POSTGRES,
   password: process.env.PASSWORD_DB_POSTGRES,
   port: process.env.PORT_DB_POSTGRES,
-});*/
+});
 
-const db = new Client({
+/*const db = new Client({
   user: 'postgres',
   host: 'localhost',
   database: 'db_memes',
   password: '1M3M323_3-152G0553XD##',
   port: 5432,
-});
+});*/
 
 db.connect();
 
