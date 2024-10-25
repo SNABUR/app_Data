@@ -9,7 +9,7 @@ const port = 3000; // Puedes usar otro puerto si lo prefieres
 
 app.use(cors({
   //origin: ['http://localhost:5173'] // Restringe los orígenes permitidos
-  origin: ['https://ggeese.github.io'] // Restringe los orígenes permitidos
+    origin: ['https://ggeese.github.io', 'https://ggeese.fun'] // Restringe los orígenes permitidos
 }));
 
 // Middleware para parsear JSON
