@@ -116,9 +116,7 @@ app.get("/meme_pool", async (req, res) => {
 
 app.get("/meme_data", async (req, res) => {
   const { contract_meme, network } = req.query; // Obtener los valores de los query parameters 'contract_meme' y 'network'
-  
-  console.log("Contract:", contract_meme, "Network:", network);
-  
+    
   // Verificar que los parámetros requeridos estén presentes
   if (!contract_meme || !network) {
     return res.status(400).json({ error: 'Contract and network parameters are required' });
@@ -140,29 +138,49 @@ app.get("/meme_data", async (req, res) => {
     // Asegurarse de que el contrato sea válido
     try {
       const tokenContract = new ethers.Contract(contract_meme, contractABI_MEMECOIN, provider);
-
-      // Obtener las tarifas y detalles de protección del contrato
-      const memefees = await tokenContract.getCurrentFee();
-      const memefeestring = memefees.toString();
-
-      const [startTrade, protectminutes] = await tokenContract.getProtectDetails();
-
-      // Convertir startTrade y protectminutes a cadenas
-      const startTradeString = startTrade.toString();
-      const protectMinutesString = protectminutes.toString();
-
-      // Devolver la información del contrato
-      res.json({
-        memefeestring,
-        startTrade: startTradeString,
-        protectminutes: protectMinutesString
-      });
-
-      console.log("Fees:", memefeestring, "Start Trade:", startTrade, "Protect Minutes:", protectminutes);
-    } catch (contractError) {
-      console.error("Error al interactuar con el contrato:", contractError);
-      return res.status(500).json({ error: 'Error interacting with the contract' });
+    
+      // Variables para almacenar resultados y para devolver solo los datos exitosos
+      let memefeestring, startTradeString, protectMinutesString, timeframeAddress;
+    
+      // Obtener las tarifas y detalles de protección del contrato de forma independiente
+      try {
+        const memefees = await tokenContract.getCurrentFee();
+        memefeestring = memefees.toString();
+      } catch (feeError) {
+        console.error("Error al obtener las tarifas del contrato:", feeError);
+      }
+    
+      try {
+        timeframeAddress = await tokenContract.getTimeFrameAddress();
+      } catch (timeFrameError) {
+        console.error("Error al obtener la dirección de TimeFrame:", timeFrameError);
+      }
+    
+      try {
+        const [startTrade, protectminutes] = await tokenContract.getProtectDetails();
+        startTradeString = startTrade.toString();
+        protectMinutesString = protectminutes.toString();
+      } catch (protectDetailsError) {
+        console.error("Error al obtener detalles de protección:", protectDetailsError);
+      }
+    
+      // Crear el objeto de respuesta solo con los datos exitosos
+      const response = {};
+      if (memefeestring !== undefined) response.memefeestring = memefeestring;
+      if (startTradeString !== undefined) response.startTrade = startTradeString;
+      if (protectMinutesString !== undefined) response.protectminutes = protectMinutesString;
+      if (timeframeAddress !== undefined) response.timeframeAddress = timeframeAddress;
+    
+      // Devolver la respuesta
+      res.json(response);
+    
+      // Console log para verificar los resultados
+      console.log("Fees:", memefeestring, "Start Trade:", startTradeString, "Protect Minutes:", protectMinutesString, "TimeFrame Address:", timeframeAddress);
+    } catch (generalError) {
+      console.error("Error general:", generalError);
+      res.status(500).json({ error: 'Error fetching liquidity pool information' });
     }
+    
 
   } catch (err) {
     console.error("Error general:", err);
